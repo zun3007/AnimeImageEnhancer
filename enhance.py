@@ -4,15 +4,22 @@ import argparse
 import os
 from cv2 import dnn_superres
 
-def load_model(model_choice, use_gpu):
+def load_model(model_choice, use_gpu, use_cpu_egpu):
     sr = dnn_superres.DnnSuperResImpl_create()
     model_file = 'EDSR_x2.pb' if model_choice == 'x2' else 'EDSR_x3.pb'
     sr.readModel(model_file)
     sr.setModel('edsr', 2 if model_choice == 'x2' else 3)
+    
     if use_gpu:
+        # Use NVIDIA GPU (requires CUDA)
         sr.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         sr.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+    elif use_cpu_egpu:
+        # Use Intel eGPU (via OpenCL) for acceleration
+        sr.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
+        sr.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
     else:
+        # Default to CPU processing
         sr.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
         sr.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return sr
@@ -176,10 +183,11 @@ def main():
     parser.add_argument('input_path', type=str, nargs='?', default="input", help="Path to the input image file or directory (default: input)")
     parser.add_argument('output_path', type=str, nargs='?', default="output", help="Path to save the enhanced image file or directory (default: output)")
     parser.add_argument('--model', type=str, choices=['x2', 'x3'], default='x2', help="Choose EDSR model for upscaling: x2 or x3 (default: x2)")
-    parser.add_argument('--use_gpu', action='store_true', help="Use GPU for processing if available")
+    parser.add_argument('--use_gpu', action='store_true', help="Use NVIDIA GPU via CUDA for processing if available")
+    parser.add_argument('--use_cpu_egpu', action='store_true', help="Use Intel eGPU via OpenCL for acceleration if available")
     args = parser.parse_args()
 
-    sr = load_model(args.model, args.use_gpu)
+    sr = load_model(args.model, args.use_gpu, args.use_cpu_egpu)
 
     if os.path.isfile(args.input_path):
         if os.path.isdir(args.output_path):
