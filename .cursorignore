@@ -1,0 +1,48 @@
+# .cursorignore file for an optimal Python project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+
+# Test and coverage reports
+.tox/
+.nox/
+.coverage
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Documentation builds
+docs/_build/
+
+# IDE / Editor directories
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+tmp/ 
